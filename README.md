@@ -1,4 +1,4 @@
-# heimdall
+# Heimdall
 
 ```
 Sentinel Gof of Light, Security and Surveillance
