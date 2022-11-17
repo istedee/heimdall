@@ -1,7 +1,7 @@
 # Heimdall
 
 ```
-Sentinel Gof of Light, Security and Surveillance
+Sentinel God of Light, Security and Surveillance
 ```
 
 
