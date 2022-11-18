@@ -8,7 +8,6 @@ import functools
 
 
 async def scanner():
-    #kannattaa tehä silleen että kaikki ip:t dictiin -> poista ne joissa lista tyhjä. pääsee helpolla :D
     scan_results = {}
     target = str(1)
     print("-" * 50)
@@ -60,7 +59,6 @@ async def something_else():
 async def main():
     await asyncio.gather(
         scanner(),
-        something_else(),
     )
 
 
