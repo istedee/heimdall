@@ -1,1 +1,1 @@
-nmap==0.0.1
+python-nmap==0.7.1
