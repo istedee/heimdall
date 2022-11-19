@@ -1,0 +1,32 @@
+import yaml
+from pathlib import Path
+
+
+class ConfigManager:
+    """
+    Manages config of Heimdall
+    """
+
+    def __init__(self) -> None:
+        self.settings = ""
+        self.confPath = Path(__file__).parent / "../config/config.yml"
+
+    def set_config(self) -> None:
+        """Set the configuration of Heimdall"""
+        with open(self.confPath, "r") as config:
+            settings = yaml.safe_load(config)
+            self.settings = settings
+
+    def get_config(self) -> dict:
+        """Return current configuration from class"""
+        return self.settings
+
+    def check_configuration(self, current_conf) -> bool:
+        """Compare configuration objects for differences"""
+        return current_conf == self.load_config()
+
+    def load_config(self) -> dict:
+        """Load configuration file for inspection"""
+        with open(self.confPath, "r") as config:
+            settings = yaml.safe_load(config)
+            return settings
