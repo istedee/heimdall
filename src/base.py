@@ -7,9 +7,9 @@ import json
 async def scanner():
     results = {}
     nm = nmap.PortScanner()
-    for ip in ipaddress.IPv4Network("164.5.223.0/24"):
+    for ip in ipaddress.IPv4Network("192.168.1.0/24"):
         ip = str(ip)
-        nm.scan(hosts=ip, arguments="-sS -O -sV")
+        nm.scan(hosts=ip, arguments="-sS -sC -O -sV")
         print(f"scanning host: {ip}")
         for host in nm.all_hosts():
             if "tcp" in nm[ip].keys():
