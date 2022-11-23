@@ -1,5 +1,5 @@
 import yaml
-from pathlib import Path
+from .utils import return_path
 
 
 class ConfigManager:
@@ -9,7 +9,7 @@ class ConfigManager:
 
     def __init__(self) -> None:
         self.settings = ""
-        self.confPath = Path(__file__).parent / "../config/config.yml"
+        self.confPath = return_path("../config/config.yml")
 
     def set_config(self) -> None:
         """Set the configuration of Heimdall"""
