@@ -58,7 +58,6 @@ async def check_vulnerable_services(config: dict) -> None:
                 count += 1
                 service = servicelist[i].split(";")
                 vulns[service[0]] = service[1]
-            #                print(f"[!]Vulnerability found: {service[0]} at port {service[1]}")
             if count == 0:
                 print("No vulnerabilities found.")
         for key, data in vulns.items():
