@@ -1,0 +1,24 @@
+# Config file for Heimdall
+
+CONFIG:
+  # Defines ip address space used, default is 192.168.0.0
+  ip_space: "192.168.1.0"
+  # Subnet mask for the used ip address space, default 24
+  subnet: "28"
+  vuln_discovery: True
+  port_scan: True
+  ports:
+    start: 1
+    end: 500
+
+PLUGINS:
+  # Plugin config
+  VULN_SCANNER:
+    some_conf_example:
+      option_1: Bob
+      option_2: Alice
+    some_other_conf: The quick brown fox jumps over the lazy dog
+
+  HONEYPOT:
+    winnie_pooh: True
+    placeholder: there are multiple plugins shown here.
