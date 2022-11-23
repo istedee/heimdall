@@ -8,7 +8,7 @@ async def scanner():
     results = {}
     nm = nmap.PortScanner()
     for ip in ipaddress.IPv4Network("192.168.1.0/24"):
-        ip = str("45.33.32.156")
+        ip = str(ip)
         nm.scan(hosts=ip, arguments="-A -script=banner ")
         print(f"scanning host: {ip}")
         for host in nm.all_hosts():
@@ -17,7 +17,7 @@ async def scanner():
             elif "udp" in nm[ip].keys():
                 results[ip] = nm[ip]["udp"]
 
-        with open("testresults.json", "w") as outfile:
+        with open("results.json", "w") as outfile:
             json.dump(results, outfile, indent=4)
 
 
@@ -25,12 +25,12 @@ async def check_vulnerable_services():
     servicelist = []
     port = 0
     count = 0
-    with open("scanmenmap.json", "r") as outfile:
+    with open("results.json", "r") as outfile:
         data = json.load(outfile)
 
     for ip in ipaddress.IPv4Network("192.168.1.0/24"):
         ip = str(ip)
-        for port in range(500):
+        for port in range(65535):
             try:
                 if data[ip][str(port)]["version"]:
                     banner_and_port_combination = (
