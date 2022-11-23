@@ -23,7 +23,8 @@ async def scanner():
 
 async def check_vulnerable_services():
     servicelist = []
-    port, count = 0
+    port = 0
+    count = 0
     with open("scanmenmap.json", "r") as outfile:
         data = json.load(outfile)
 
