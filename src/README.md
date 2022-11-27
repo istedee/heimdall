@@ -6,7 +6,6 @@ Run these commands from the src directory.
 
 **For Linux/MacOS**
 
-
 Create virtual env:
 
 ```shell
@@ -37,5 +36,20 @@ C:\> env\Scripts\activate.bat
 pip install -r requirements.txt
 ```
 
-
 ---
+
+### Installation
+
+Use the following command from Heimdall folder.
+
+```shell
+$ python3 -m heimdall.main
+```
+
+To run from e.g src folder level, use command prefix:
+
+```shell
+$ python3 -m Heimdall.heimdall.main
+```
+
+This will set the package path correctly

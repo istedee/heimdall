@@ -2,14 +2,14 @@
 
 CONFIG:
   # Defines ip address space used, default is 192.168.0.0
-  ip_space: 192.168.0.0
+  ip_space: "192.168.1.0"
   # Subnet mask for the used ip address space, default 24
-  subnet_mask: 24
-  device_discovery: True
+  subnet: "28"
+  vuln_discovery: True
   port_scan: True
   ports:
     start: 1
-    end: 1000
+    end: 500
 
 PLUGINS:
   # Plugin config
