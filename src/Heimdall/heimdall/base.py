@@ -1,64 +1,134 @@
 import nmap
 import ipaddress
 import json
-from .utils import return_path
+from .utils import return_path, ContentCallback
+import pycurl
+from bs4 import BeautifulSoup
+from googlesearch import search
+import asyncio
+import functools
 
 
 async def scanner(config: dict) -> None:
-    results = {}
-    nm = nmap.PortScanner()
-    scanRange = config["ip_space"] + "/" + config["subnet"]
+    while True:
+        print("Starting port scan...")
+        loop = asyncio.get_event_loop()
+        results = {}
+        nm = nmap.PortScanner()
+        scanRange = config["ip_space"] + "/" + config["subnet"]
 
-    nm.scan(hosts=scanRange, arguments="-A -script=banner ")
-    for host in nm.all_hosts():
-        if "tcp" in nm[host].keys():
-            results[host] = nm[host]["tcp"]
-        elif "udp" in nm[host].keys():
-            results[host] = nm[host]["udp"]
+        await loop.run_in_executor(
+            None,
+            functools.partial(nm.scan, hosts=scanRange, arguments="-A -script=banner "),
+        )
+        nm.scan(hosts=scanRange, arguments="-A -script=banner ")
+        for host in nm.all_hosts():
+            if "tcp" in nm[host].keys():
+                results[host] = nm[host]["tcp"]
+            elif "udp" in nm[host].keys():
+                results[host] = nm[host]["udp"]
 
-    confPath = return_path("../results/results.json")
-    with open(confPath, "w") as outfile:
-        json.dump(results, outfile, indent=4)
+        confPath = return_path("../results/results.json")
+        with open(confPath, "w") as outfile:
+            json.dump(results, outfile, indent=4)
+        print("Port scan done!")
+        await asyncio.sleep(120)
 
 
 async def check_vulnerable_services(config: dict) -> None:
-    servicelist = []
-    port = 0
-    count = 0
-    confPath = return_path("../results/results.json")
-    try:
-        with open(confPath, "r") as outfile:
-            data = json.load(outfile)
+    while True:
+        print("Starting vulnerability scan")
+        servicelist = []
+        port = 0
+        count = 0
+        confPath = return_path("../results/results.json")
+        try:
+            with open(confPath, "r") as outfile:
+                data = json.load(outfile)
 
-        for ip in ipaddress.IPv4Network(config["ip_space"] + "/" + config["subnet"]):
-            ip = str(ip)
-            for port in range(config["ports"]["start"], config["ports"]["end"]):
-                try:
-                    if data[ip][str(port)]["version"]:
-                        banner_and_port_combination = (
-                            data[ip][str(port)]["script"]["banner"] + ";" + str(port)
+            for ip in ipaddress.IPv4Network(config["ip_space"] + "/" + config["subnet"]):
+                ip = str(ip)
+                for port in range(config["ports"]["start"], config["ports"]["end"]):
+                    try:
+                        if data[ip][str(port)]["version"]:
+                            banner_and_port_combination = (
+                                data[ip][str(port)]["script"]["banner"] + ";" + str(port)
+                            )
+                            servicelist.append(banner_and_port_combination)
+                    except KeyError:
+                        pass
+        except FileNotFoundError as e:
+            print("Results file not found!")
+            print(e)
+
+        vulPath = return_path("../files/vulfile.txt")
+        with open(vulPath, "r") as file:
+            data = file.read()
+            vulns = {}
+            for i in range(len(servicelist)):
+                servicelist[i].split(";")
+                servicelist[i].split(",")[:-1]
+                parsed_service = ",".join(servicelist[i].split(",")[:-1])
+                if parsed_service in data:
+                    count += 1
+                    service = servicelist[i].split(";")
+                    vulns[service[0]] = service[1]
+                if count == 0:
+                    print("No vulnerabilities found.")
+            for key, data in vulns.items():
+                print(f"\n[!] Vulnerability found: {key} at port {data}")
+        await asyncio.sleep(300)
+
+    def exploitdb_search(name):
+        
+        if len(name) != 0:
+            try:
+                query = str(name) + " " + "site:https://www.exploit-db.com"
+                for data in search(query, tld="com", num=20, start=0, stop=25, pause=2):
+                    if "https://www.exploit-db.com/exploits" in data:
+                        t = ContentCallback()
+                        curlObj = pycurl.Curl()
+                        curlObj.setopt(curlObj.URL, "{}".format(data))
+                        curlObj.setopt(curlObj.WRITEFUNCTION, t.content_callback)
+                        curlObj.perform()
+                        curlObj.close()
+                        print(("Url:" + " " + data))
+                        soup = BeautifulSoup(t.contents, "lxml")
+                        desc = soup.find("meta", property="og:title")
+                        keywords = soup.find("meta", attrs={"name": "keywords"})
+                        print(keywords["content"])
+                        tmp = keywords["content"].split(",")
+                        try:
+                            cve = tmp[2]
+                        except IndexError:
+                            cve = None
+
+                        print(
+                            (
+                                "Title:" + " " + desc["content"]
+                                if desc
+                                else "Cannot find the description for the exploit"
+                            )
                         )
-                        servicelist.append(banner_and_port_combination)
-                except KeyError:
-                    pass
-    except FileNotFoundError as e:
-        print("Results file not found!")
-        print(e)
+                        author = soup.find("meta", property="article:author")
+                        print(("CVE:" + " " + cve if cve else "No cve id found"))
+                        print(
+                            (
+                                "Author:" + " " + author["content"]
+                                if author
+                                else "No author name found"
+                            )
+                        )
+                        publish = soup.find("meta", property="article:published_time")
+                        print(
+                            (
+                                "Publish Date:" + " " + publish["content"]
+                                if publish
+                                else "Cannot find the published date"
+                            )
+                        )
+                        print()
 
-    vulPath = return_path("../files/vulfile.txt")
-    with open(vulPath, "r") as file:
-        data = file.read()
-
-        vulns = {}
-        for i in range(len(servicelist)):
-            servicelist[i].split(";")
-            servicelist[i].split(",")[:-1]
-            parsed_service = ",".join(servicelist[i].split(",")[:-1])
-            if parsed_service in data:
-                count += 1
-                service = servicelist[i].split(";")
-                vulns[service[0]] = service[1]
-            if count == 0:
-                print("No vulnerabilities found.")
-        for key, data in vulns.items():
-            print(f"\n[!] Vulnerability found: {key} at port {data}")
+            except Exception as e:
+                print("Connection Error!")
+                print(e)
