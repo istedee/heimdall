@@ -1,42 +1,6 @@
 {
-    "192.168.1.1": {
+    "192.168.100.1": {
         "53": {
-            "state": "open",
-            "reason": "syn-ack",
-            "name": "domain",
-            "product": "dnsmasq",
-            "version": "2.79-1-2-geff17ee",
-            "extrainfo": "",
-            "conf": "10",
-            "cpe": "cpe:/a:thekelleys:dnsmasq:2.79-1-2-geff17ee"
-        },
-        "80": {
-            "state": "open",
-            "reason": "syn-ack",
-            "name": "http",
-            "product": "lighttpd",
-            "version": "",
-            "extrainfo": "",
-            "conf": "10",
-            "cpe": "cpe:/a:lighttpd:lighttpd",
-            "script": {
-                "http-server-header": "Server"
-            }
-        },
-        "443": {
-            "state": "open",
-            "reason": "syn-ack",
-            "name": "http",
-            "product": "lighttpd",
-            "version": "",
-            "extrainfo": "",
-            "conf": "10",
-            "cpe": "cpe:/a:lighttpd:lighttpd",
-            "script": {
-                "http-server-header": "Server"
-            }
-        },
-        "10001": {
             "state": "open",
             "reason": "syn-ack",
             "name": "tcpwrapped",
@@ -45,278 +9,93 @@
             "extrainfo": "",
             "conf": "8",
             "cpe": ""
-        }
-    },
-    "192.168.1.10": {
-        "22": {
-            "state": "open",
-            "reason": "syn-ack",
-            "name": "ssh",
-            "product": "OpenSSH",
-            "version": "7.9p1 Debian 10+deb10u2",
-            "extrainfo": "protocol 2.0",
-            "conf": "10",
-            "cpe": "cpe:/o:linux:linux_kernel",
-            "script": {
-                "banner": "SSH-2.0-OpenSSH_7.9p1 Debian-10+deb10u2"
-            }
         },
         "80": {
             "state": "open",
             "reason": "syn-ack",
             "name": "http",
-            "product": "Apache httpd",
-            "version": "2.4.38",
-            "extrainfo": "(Debian)",
-            "conf": "10",
-            "cpe": "cpe:/a:apache:http_server:2.4.38",
-            "script": {
-                "http-server-header": "Apache/2.4.38 (Debian)",
-                "https-redirect": "ERROR: Script execution failed (use -d to debug)"
-            }
-        }
-    },
-    "192.168.1.2": {
-        "53": {
-            "state": "open",
-            "reason": "syn-ack",
-            "name": "domain",
-            "product": "dnsmasq",
-            "version": "2.59",
-            "extrainfo": "",
-            "conf": "10",
-            "cpe": "cpe:/a:thekelleys:dnsmasq:2.59"
-        },
-        "80": {
-            "state": "open",
-            "reason": "syn-ack",
-            "name": "http",
-            "product": "Mongoose httpd",
+            "product": "",
             "version": "",
             "extrainfo": "",
             "conf": "10",
-            "cpe": "cpe:/a:cesanta:mongoose",
-            "script": {
-                "http-trane-info": "Problem with XML parsing of /evox/about"
-            }
-        },
-        "49152": {
-            "state": "open",
-            "reason": "syn-ack",
-            "name": "upnp",
-            "product": "Portable SDK for UPnP devices",
-            "version": "1.3.1",
-            "extrainfo": "Linux 3.2.9; UPnP 1.0",
-            "conf": "10",
-            "cpe": "cpe:/o:linux:linux_kernel:3.2.9"
-        },
-        "49153": {
-            "state": "open",
-            "reason": "syn-ack",
-            "name": "upnp",
-            "product": "Portable SDK for UPnP devices",
-            "version": "1.3.1",
-            "extrainfo": "Linux 3.2.9; UPnP 1.0",
-            "conf": "10",
-            "cpe": "cpe:/o:linux:linux_kernel:3.2.9"
-        },
-        "49154": {
-            "state": "open",
-            "reason": "syn-ack",
-            "name": "upnp",
-            "product": "Portable SDK for UPnP devices",
-            "version": "1.6.18",
-            "extrainfo": "Linux 3.2.9; UPnP 1.0",
-            "conf": "10",
-            "cpe": "cpe:/o:linux:linux_kernel:3.2.9"
-        }
-    },
-    "192.168.1.3": {
-        "22": {
-            "state": "open",
-            "reason": "syn-ack",
-            "name": "ssh",
-            "product": "OpenSSH",
-            "version": "7.9p1 Debian 10+deb10u2",
-            "extrainfo": "protocol 2.0",
-            "conf": "10",
-            "cpe": "cpe:/o:linux:linux_kernel",
-            "script": {
-                "banner": "SSH-2.0-OpenSSH_7.9p1 Debian-10+deb10u2"
-            }
-        },
-        "111": {
-            "state": "open",
-            "reason": "syn-ack",
-            "name": "rpcbind",
-            "product": "",
-            "version": "2-4",
-            "extrainfo": "RPC #100000",
-            "conf": "10",
             "cpe": "",
             "script": {
-                "rpcinfo": "\n  program version    port/proto  service\n  100000  2,3,4        111/tcp   rpcbind\n  100000  2,3,4        111/udp   rpcbind\n  100000  3,4          111/tcp6  rpcbind\n  100000  3,4          111/udp6  rpcbind\n"
+                "fingerprint-strings": "\n  FourOhFourRequest: \n    HTTP/1.1 404 \n    X-Download-Options: noopen\n    X-Frame-Options: SAMEORIGIN\n    X-XSS-Protection: 1; mode=block\n    Content-Length: 0\n  GetRequest: \n    HTTP/1.1 200 OK\n    Set-Cookie: SessionID_R3=8EkE5A10K6KgsDRowjch7a+w3SmXJgSC8mlNhr+ZMPKHmvIEK50+t+fa/9uTPYJnfErb7dfyUyrryCQ43kG5HvwnoNLXpdf8YZFOnSRTGMsQ6uh6tiS+vZ9ZoHrWN6Z; path=/; HttpOnly;\n    Cache-Control: no-cache, no-store, max-age=0, must-revalidate\n    X-Download-Options: noopen\n    X-Frame-Options: SAMEORIGIN\n    X-XSS-Protection: 1; mode=block\n    Date: Mon, 28 Nov 2022 13:01:25 GMT\n    Connection: Keep-Alive\n    Content-Type: text/html; charset=utf-8\n    Content-Length: 8000\n    <!DOCTYPE html>\n    <!--[if lt IE 7 ]><html lang=\"en\" class=\"ie6\"><![endif]-->\n    <!--[if IE 7 ]><html lang=\"en\" class=\"ie7\"><![endif]-->\n    <!--[if IE 8 ]><html lang=\"en\" class=\"ie8\"><![endif]-->\n    <!--[if IE 9 ]><html lang=\"en\" class=\"ie9\"><![endif]-->\n    <!--[if (gt IE 9)|!(IE)]><!--><html lang=\"en\"><!--<![endif]-->\n    <head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n    <meta name=\"viewport\" content=\"width=devi"
             }
         },
-        "3128": {
+        "443": {
             "state": "open",
             "reason": "syn-ack",
-            "name": "http",
-            "product": "Proxmox Virtual Environment REST API",
-            "version": "3.0",
-            "extrainfo": "",
-            "conf": "10",
-            "cpe": "cpe:/a:proxmox:proxmox_virtual_environment:3.0",
-            "script": {
-                "http-server-header": "pve-api-daemon/3.0"
-            }
-        }
-    },
-    "192.168.1.4": {
-        "22": {
-            "state": "open",
-            "reason": "syn-ack",
-            "name": "ssh",
-            "product": "OpenSSH",
-            "version": "7.9p1 Debian 10+deb10u2",
-            "extrainfo": "protocol 2.0",
-            "conf": "10",
-            "cpe": "cpe:/o:linux:linux_kernel",
-            "script": {
-                "banner": "SSH-2.0-OpenSSH_7.9p1 Debian-10+deb10u2"
-            }
-        },
-        "53": {
-            "state": "open",
-            "reason": "syn-ack",
-            "name": "domain",
-            "product": "dnsmasq",
-            "version": "pi-hole-2.81",
-            "extrainfo": "",
-            "conf": "10",
-            "cpe": "cpe:/a:thekelleys:dnsmasq:pi-hole-2.81"
-        },
-        "80": {
-            "state": "open",
-            "reason": "syn-ack",
-            "name": "http",
-            "product": "lighttpd",
-            "version": "1.4.53",
-            "extrainfo": "",
-            "conf": "10",
-            "cpe": "cpe:/a:lighttpd:lighttpd:1.4.53",
-            "script": {
-                "http-server-header": "lighttpd/1.4.53"
-            }
-        }
-    },
-    "192.168.1.5": {
-        "22": {
-            "state": "open",
-            "reason": "syn-ack",
-            "name": "ssh",
-            "product": "OpenSSH",
-            "version": "7.9p1 Debian 10+deb10u2",
-            "extrainfo": "protocol 2.0",
-            "conf": "10",
-            "cpe": "cpe:/o:linux:linux_kernel",
-            "script": {
-                "banner": "SSH-2.0-OpenSSH_7.9p1 Debian-10+deb10u2"
-            }
-        },
-        "80": {
-            "state": "open",
-            "reason": "syn-ack",
-            "name": "http",
-            "product": "nginx",
-            "version": "",
-            "extrainfo": "",
-            "conf": "10",
-            "cpe": "cpe:/a:igor_sysoev:nginx"
-        },
-        "111": {
-            "state": "open",
-            "reason": "syn-ack",
-            "name": "rpcbind",
-            "product": "",
-            "version": "2-4",
-            "extrainfo": "RPC #100000",
-            "conf": "10",
-            "cpe": "",
-            "script": {
-                "rpcinfo": "\n  program version    port/proto  service\n  100000  2,3,4        111/tcp   rpcbind\n  100000  2,3,4        111/udp   rpcbind\n  100000  3,4          111/tcp6  rpcbind\n  100000  3,4          111/udp6  rpcbind\n"
-            }
-        },
-        "139": {
-            "state": "open",
-            "reason": "syn-ack",
-            "name": "netbios-ssn",
-            "product": "Samba smbd",
-            "version": "3.X - 4.X",
-            "extrainfo": "workgroup: WORKGROUP",
-            "conf": "10",
-            "cpe": "cpe:/a:samba:samba"
-        },
-        "445": {
-            "state": "open",
-            "reason": "syn-ack",
-            "name": "netbios-ssn",
-            "product": "Samba smbd",
-            "version": "3.X - 4.X",
-            "extrainfo": "workgroup: WORKGROUP",
-            "conf": "10",
-            "cpe": "cpe:/a:samba:samba"
-        },
-        "5357": {
-            "state": "open",
-            "reason": "syn-ack",
-            "name": "http",
-            "product": "BaseHTTPServer",
-            "version": "0.6",
-            "extrainfo": "Python 3.7.3",
-            "conf": "10",
-            "cpe": "cpe:/a:python:python:3.7.3",
-            "script": {
-                "http-server-header": "BaseHTTP/0.6 Python/3.7.3"
-            }
-        }
-    },
-    "192.168.1.6": {
-        "22": {
-            "state": "open",
-            "reason": "syn-ack",
-            "name": "ssh",
-            "product": "OpenSSH",
-            "version": "7.9p1 Debian 10+deb10u2",
-            "extrainfo": "protocol 2.0",
-            "conf": "10",
-            "cpe": "cpe:/o:linux:linux_kernel",
-            "script": {
-                "banner": "SSH-2.0-OpenSSH_7.9p1 Debian-10+deb10u2"
-            }
-        },
-        "53": {
-            "state": "open",
-            "reason": "syn-ack",
-            "name": "domain",
+            "name": "https",
             "product": "",
             "version": "",
             "extrainfo": "",
             "conf": "3",
             "cpe": ""
         },
-        "80": {
+        "5060": {
+            "state": "open",
+            "reason": "syn-ack",
+            "name": "sip",
+            "product": "",
+            "version": "",
+            "extrainfo": "",
+            "conf": "3",
+            "cpe": ""
+        }
+    },
+    "192.168.100.10": {
+        "8008": {
             "state": "open",
             "reason": "syn-ack",
             "name": "http",
             "product": "",
             "version": "",
             "extrainfo": "",
-            "conf": "10",
-            "cpe": "",
-            "script": {
-                "fingerprint-strings": "\n  FourOhFourRequest: \n    HTTP/1.0 403 Forbidden\n    Access-Control-Allow-Origin: *\n    Date: Wed, 23 Nov 2022 22:11:51 GMT\n    Content-Length: 9\n    Content-Type: text/plain; charset=utf-8\n    Forbidden\n  GenericLines, Help, Kerberos, LDAPSearchReq, LPDString, RTSPRequest, SSLSessionReq, TLSSessionReq, TerminalServerCookie: \n    HTTP/1.1 400 Bad Request\n    Content-Type: text/plain; charset=utf-8\n    Connection: close\n    Request\n  GetRequest, HTTPOptions: \n    HTTP/1.0 302 Found\n    Access-Control-Allow-Origin: *\n    Location: /login.html\n    Date: Wed, 23 Nov 2022 22:11:46 GMT\n    Content-Length: 0"
-            }
+            "conf": "3",
+            "cpe": ""
+        },
+        "8009": {
+            "state": "open",
+            "reason": "syn-ack",
+            "name": "ajp13",
+            "product": "",
+            "version": "",
+            "extrainfo": "",
+            "conf": "3",
+            "cpe": ""
+        },
+        "8443": {
+            "state": "open",
+            "reason": "syn-ack",
+            "name": "https-alt",
+            "product": "",
+            "version": "",
+            "extrainfo": "",
+            "conf": "3",
+            "cpe": ""
+        },
+        "9000": {
+            "state": "open",
+            "reason": "syn-ack",
+            "name": "cslistener",
+            "product": "",
+            "version": "",
+            "extrainfo": "",
+            "conf": "3",
+            "cpe": ""
+        }
+    },
+    "192.168.100.12": {
+        "62078": {
+            "state": "open",
+            "reason": "syn-ack",
+            "name": "tcpwrapped",
+            "product": "",
+            "version": "",
+            "extrainfo": "",
+            "conf": "8",
+            "cpe": ""
         }
     }
 }

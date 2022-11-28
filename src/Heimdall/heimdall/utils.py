@@ -8,3 +8,11 @@ def return_path(relpath: str) -> str:
     Helps to call the function or package
     from anywhere."""
     return Path(__file__).parent / relpath
+
+
+class ContentCallback:
+    def __init__(self):
+        self.contents = ""
+
+    def content_callback(self, buf):
+        self.contents = self.contents + str(buf)
