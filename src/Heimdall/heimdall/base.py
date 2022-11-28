@@ -1,7 +1,7 @@
 import nmap
 import ipaddress
 import json
-from .utils import return_path, ContentCallback
+from .utils import return_path, ContentCallback, parse_results
 import pycurl
 from bs4 import BeautifulSoup
 from googlesearch import search
@@ -9,78 +9,85 @@ import asyncio
 import functools
 
 
-async def scanner(config: dict) -> None:
-    while True:
-        print("Starting port scan...")
-        loop = asyncio.get_event_loop()
-        results = {}
-        nm = nmap.PortScanner()
-        scanRange = config["ip_space"] + "/" + config["subnet"]
+async def scanner(config: dict, timestamp: str) -> None:
+    """Scanner base logic"""
+    if config["port_scan"] == False:
+        print("Portscan not active")
+        await asyncio.sleep(10)
+        return
+    print("Starting port scan...")
+    loop = asyncio.get_event_loop()
+    results = {}
+    nm = nmap.PortScanner()
+    scanRange = config["ip_space"] + "/" + config["subnet"]
 
-        await loop.run_in_executor(
-            None,
-            functools.partial(nm.scan, hosts=scanRange, arguments="-A -script=banner "),
-        )
-        nm.scan(hosts=scanRange, arguments="-A -script=banner ")
-        for host in nm.all_hosts():
-            if "tcp" in nm[host].keys():
-                results[host] = nm[host]["tcp"]
-            elif "udp" in nm[host].keys():
-                results[host] = nm[host]["udp"]
+    await loop.run_in_executor(
+        None,
+        functools.partial(nm.scan, hosts=scanRange, arguments="-A -script=banner "),
+    )
+    nm.scan(hosts=scanRange, arguments="-A -script=banner ")
+    for host in nm.all_hosts():
+        if "tcp" in nm[host].keys():
+            results[host] = nm[host]["tcp"]
+        elif "udp" in nm[host].keys():
+            results[host] = nm[host]["udp"]
 
-        confPath = return_path("../results/results.json")
+    confPath = return_path("../results/results.json")
+    try:
         with open(confPath, "w") as outfile:
             json.dump(results, outfile, indent=4)
-        print("Port scan done!")
-        await asyncio.sleep(120)
+    except FileNotFoundError:
+        print("Results folder not found!")
+        print("Cannot save results to a file")
+    print("Port scan done!")
+    print(parse_results(results, timestamp))
+    await check_vulnerable_services(config, results)
+    await asyncio.sleep(120)
 
 
-async def check_vulnerable_services(config: dict) -> None:
-    while True:
-        print("Starting vulnerability scan")
-        servicelist = []
-        port = 0
-        count = 0
-        confPath = return_path("../results/results.json")
-        try:
-            with open(confPath, "r") as outfile:
-                data = json.load(outfile)
+async def check_vulnerable_services(config: dict, scanresults: dict) -> None:
+    if config["vuln_discovery"] == False:
+        print("Vulnerability discovery is not active")
+        await asyncio.sleep(5)
+        return
+    print("Starting vulnerability scan")
+    servicelist = []
+    port = 0
+    count = 0
+    data = scanresults
 
-            for ip in ipaddress.IPv4Network(config["ip_space"] + "/" + config["subnet"]):
-                ip = str(ip)
-                for port in range(config["ports"]["start"], config["ports"]["end"]):
-                    try:
-                        if data[ip][str(port)]["version"]:
-                            banner_and_port_combination = (
-                                data[ip][str(port)]["script"]["banner"] + ";" + str(port)
-                            )
-                            servicelist.append(banner_and_port_combination)
-                    except KeyError:
-                        pass
-        except FileNotFoundError as e:
-            print("Results file not found!")
-            print(e)
+    for ip in ipaddress.IPv4Network(config["ip_space"] + "/" + config["subnet"]):
+        ip = str(ip)
+        for port in range(config["ports"]["start"], config["ports"]["end"]):
+            try:
+                if data[ip][str(port)]["version"]:
+                    banner_and_port_combination = (
+                        data[ip][str(port)]["script"]["banner"] + ";" + str(port)
+                    )
+                    servicelist.append(banner_and_port_combination)
+            except KeyError:
+                pass
 
-        vulPath = return_path("../files/vulfile.txt")
-        with open(vulPath, "r") as file:
-            data = file.read()
-            vulns = {}
-            for i in range(len(servicelist)):
-                servicelist[i].split(";")
-                servicelist[i].split(",")[:-1]
-                parsed_service = ",".join(servicelist[i].split(",")[:-1])
-                if parsed_service in data:
-                    count += 1
-                    service = servicelist[i].split(";")
-                    vulns[service[0]] = service[1]
-                if count == 0:
-                    print("No vulnerabilities found.")
-            for key, data in vulns.items():
-                print(f"\n[!] Vulnerability found: {key} at port {data}")
+    vulPath = return_path("../files/vulfile.txt")
+    with open(vulPath, "r") as file:
+        data = file.read()
+        vulns = {}
+        for i in range(len(servicelist)):
+            servicelist[i].split(";")
+            servicelist[i].split(",")[:-1]
+            parsed_service = ",".join(servicelist[i].split(",")[:-1])
+            if parsed_service in data:
+                count += 1
+                service = servicelist[i].split(";")
+                vulns[service[0]] = service[1]
+            if count == 0:
+                print("No vulnerabilities found.")
+        for key, data in vulns.items():
+            print(f"\n[!] Vulnerability found: {key} at port {data}")
         await asyncio.sleep(300)
 
     def exploitdb_search(name):
-        
+
         if len(name) != 0:
             try:
                 query = str(name) + " " + "site:https://www.exploit-db.com"
