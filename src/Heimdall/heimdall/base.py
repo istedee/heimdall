@@ -1,30 +1,23 @@
 import nmap
-import ipaddress
 import json
 from .utils import return_path, ContentCallback, parse_results
 import pycurl
 from bs4 import BeautifulSoup
 from googlesearch import search
 import asyncio
-import functools
 
 
 async def scanner(config: dict, timestamp: str) -> None:
     """Scanner base logic"""
     if config["port_scan"] == False:
-        print("Portscan not active")
+        print("Portscan not enabled")
         await asyncio.sleep(10)
         return
     print("Starting port scan...")
-    loop = asyncio.get_event_loop()
     results = {}
     nm = nmap.PortScanner()
     scanRange = config["ip_space"] + "/" + config["subnet"]
 
-    await loop.run_in_executor(
-        None,
-        functools.partial(nm.scan, hosts=scanRange, arguments="-A -script=banner "),
-    )
     nm.scan(hosts=scanRange, arguments="-A -script=banner ")
     for host in nm.all_hosts():
         if "tcp" in nm[host].keys():
@@ -39,30 +32,34 @@ async def scanner(config: dict, timestamp: str) -> None:
     except FileNotFoundError:
         print("Results folder not found!")
         print("Cannot save results to a file")
-    print("Port scan done!")
-    print(parse_results(results, timestamp))
-    await check_vulnerable_services(config, results)
+    print("Port scan done!\n")
+
+    #############################################
+    # Here comes the ELK handle for the parsed
+    parsedELK = parse_results(results, timestamp)
+    # insert function here
+    #############################################
+
+    check_vulnerable_services(config, results, timestamp)
     await asyncio.sleep(120)
 
 
-async def check_vulnerable_services(config: dict, scanresults: dict) -> None:
+def check_vulnerable_services(config: dict, scanresults: dict, timestamp: str) -> None:
     if config["vuln_discovery"] == False:
-        print("Vulnerability discovery is not active")
-        await asyncio.sleep(5)
+        print("Vulnerability discovery is not enabled")
         return
-    print("Starting vulnerability scan")
+    print("Starting vulnerability scan\n")
     servicelist = []
     port = 0
     count = 0
     data = scanresults
 
-    for ip in ipaddress.IPv4Network(config["ip_space"] + "/" + config["subnet"]):
-        ip = str(ip)
-        for port in range(config["ports"]["start"], config["ports"]["end"]):
+    for host, ports in scanresults.items():
+        for port, data in ports.items():
             try:
-                if data[ip][str(port)]["version"]:
+                if data["version"]:
                     banner_and_port_combination = (
-                        data[ip][str(port)]["script"]["banner"] + ";" + str(port)
+                        data["script"]["banner"] + ";" + str(port)
                     )
                     servicelist.append(banner_and_port_combination)
             except KeyError:
@@ -84,7 +81,6 @@ async def check_vulnerable_services(config: dict, scanresults: dict) -> None:
                 print("No vulnerabilities found.")
         for key, data in vulns.items():
             print(f"\n[!] Vulnerability found: {key} at port {data}")
-        await asyncio.sleep(300)
 
     def exploitdb_search(name):
 
