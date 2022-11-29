@@ -1,10 +1,7 @@
-import nmap
-import json
+import nmap, json, pycurl, asyncio, functools
 from .utils import return_path, ContentCallback, parse_results
-import pycurl
 from bs4 import BeautifulSoup
 from googlesearch import search
-import asyncio
 
 
 async def scanner(config: dict, timestamp: str) -> None:
@@ -14,11 +11,15 @@ async def scanner(config: dict, timestamp: str) -> None:
         await asyncio.sleep(10)
         return
     print("Starting port scan...")
+    loop = asyncio.get_event_loop()
     results = {}
     nm = nmap.PortScanner()
     scanRange = config["ip_space"] + "/" + config["subnet"]
 
-    nm.scan(hosts=scanRange, arguments="-A -script=banner ")
+    await loop.run_in_executor(
+        None,
+        functools.partial(nm.scan, hosts=scanRange, arguments="-A -script=banner "),
+    )
     for host in nm.all_hosts():
         if "tcp" in nm[host].keys():
             results[host] = nm[host]["tcp"]
@@ -40,11 +41,13 @@ async def scanner(config: dict, timestamp: str) -> None:
     # insert function here
     #############################################
 
-    check_vulnerable_services(config, results, timestamp)
+    await check_vulnerable_services(config, results, timestamp)
     await asyncio.sleep(120)
 
 
-def check_vulnerable_services(config: dict, scanresults: dict, timestamp: str) -> None:
+async def check_vulnerable_services(
+    config: dict, scanresults: dict, timestamp: str
+) -> None:
     if config["vuln_discovery"] == False:
         print("Vulnerability discovery is not enabled")
         return
