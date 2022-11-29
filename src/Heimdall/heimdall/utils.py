@@ -14,9 +14,7 @@ def parse_results(results: dict, timestamp) -> list:
     """Returns parsed dictionary for ELK handle"""
     elkList = []
     for host, ports in results.items():
-        print(host)
         for port, data in ports.items():
-            print(port)
             elkJson = {}
             elkJson["timestamp"] = timestamp
             elkJson["ip"] = host
