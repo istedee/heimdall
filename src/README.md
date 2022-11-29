@@ -6,6 +6,12 @@ Run these commands from the src directory.
 
 **For Linux/MacOS**
 
+Install dependencies:
+
+```shell
+$ sudo apt install libcurl4-gnutls-dev librtmp-dev
+```
+
 Create virtual env:
 
 ```shell

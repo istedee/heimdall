@@ -1,41 +1,50 @@
-import asyncio
+import asyncio, json, datetime
 
 from . import base
 
 from . import configparser
 
-import os
 
+class MainClass:
+    """Sets stage ready for Heimdall"""
 
-def set_configuration():
-    set = configparser.ConfigManager()
-    set.set_config()
-    config = set.get_config()
-    return config
+    def __init__(self) -> None:
+        """Inits the class ready for looping"""
+        self.config = self.set_configuration()
+        print(json.dumps(self.config, indent=4))
 
-async def check_file_changes():
-    #tähän funktioon tsekkailut sille onko file muuttunu
-    while True:
+    def timestamp(self) -> str:
+        """Returns timestamp for Scanner"""
+        return datetime.datetime.now().isoformat(sep=" ", timespec="seconds")
+
+    def set_configuration(self):
+        set = configparser.ConfigManager()
+        set.set_config()
+        config = set.get_config()
+        return config
+
+    async def check_file_changes(self, config):
         print("checking file changes")
-        await asyncio.sleep(20)
+        if configparser.ConfigManager().check_configuration(config) == False:
+            self.config = self.set_configuration()
+            config = self.config
+            print("New configuration set!")
+        await asyncio.sleep(2)
 
-async def main():
-    config = set_configuration()
-    print(config)
-    tasks = set()
-    task_list = []
-    loop = asyncio.get_event_loop()
-    file_change_task = asyncio.create_task(check_file_changes())
-    if config["CONFIG"]["port_scan"]:
-        portscan = asyncio.create_task(base.scanner(config["CONFIG"]))
-        if config["CONFIG"]["vuln_discovery"]:
-            vulnscan = asyncio.create_task(base.check_vulnerable_services(config["CONFIG"]))
-    else:
-        print("\nPortScan is disabled, enable scanning to use Heimdall")
-        print("This can be done from the config/config.yml file\n")
-    await file_change_task
-    await vulnscan
-    await portscan
+    async def main(self):
+        """Main loop for Heimdall"""
+        while True:
+            timestamp = self.timestamp()
+            file_change_task = asyncio.create_task(self.check_file_changes(self.config))
+            portscan = asyncio.create_task(
+                base.scanner(self.config["CONFIG"], timestamp)
+            )
+            await file_change_task
+            await portscan
+
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(MainClass().main())
+    except KeyboardInterrupt:
+        print("\nExiting scanner...\nGoodbye!\n")

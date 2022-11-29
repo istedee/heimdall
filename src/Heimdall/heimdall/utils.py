@@ -10,6 +10,22 @@ def return_path(relpath: str) -> str:
     return Path(__file__).parent / relpath
 
 
+def parse_results(results: dict, timestamp) -> list:
+    """Returns parsed dictionary for ELK handle"""
+    elkList = []
+    for host, ports in results.items():
+        for port, data in ports.items():
+            elkJson = {}
+            elkJson["timestamp"] = timestamp
+            elkJson["ip"] = host
+            elkJson["port"] = port
+            elkJson["name"] = data["name"]
+            elkJson["product"] = data["product"]
+            elkJson["version"] = data["version"]
+            elkList.append(elkJson)
+    return elkList
+
+
 class ContentCallback:
     def __init__(self):
         self.contents = ""
