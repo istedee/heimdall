@@ -129,4 +129,4 @@ dmypy.json
 .pyre/
 
 #Heimdall results folder
-src/Heimdall/results/results.json
+results/
