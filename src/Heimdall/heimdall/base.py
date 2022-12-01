@@ -1,13 +1,17 @@
 import nmap, json, pycurl, asyncio, functools
 from .utils import return_path, ContentCallback, parse_results
+from . import configparser
 from bs4 import BeautifulSoup
 from googlesearch import search
 
 
 async def scanner(config: dict, timestamp: str) -> None:
     while True:
+        # Check config changes
+        if configparser.ConfigManager().check_configuration(config) == False:
+            config = configparser.ConfigManager().set_configuration(config)
         """Scanner base logic"""
-        if config["port_scan"] == False:
+        if config["CONFIG"]["port_scan"] == False:
             print("Portscan not enabled")
             await asyncio.sleep(10)
             return
@@ -15,7 +19,7 @@ async def scanner(config: dict, timestamp: str) -> None:
         loop = asyncio.get_event_loop()
         results = {}
         nm = nmap.PortScanner()
-        scanRange = config["ip_space"] + "/" + config["subnet"]
+        scanRange = config["CONFIG"]["ip_space"] + "/" + config["CONFIG"]["subnet"]
 
         await loop.run_in_executor(
             None,
@@ -50,7 +54,7 @@ async def scanner(config: dict, timestamp: str) -> None:
 async def check_vulnerable_services(
     config: dict, scanresults: dict, timestamp: str
 ) -> None:
-    if config["vuln_discovery"] == False:
+    if config["CONFIG"]["vuln_discovery"] == False:
         print("Vulnerability discovery is not enabled")
         return
     print("Starting vulnerability scan\n")
@@ -58,7 +62,7 @@ async def check_vulnerable_services(
     port = 0
     count = 0
     data = scanresults
-    print(scanresults)
+    #    print(scanresults)
     if scanresults:  # skip check if results.json is empty
         print("found results")
         for host, ports in scanresults.items():
@@ -88,71 +92,72 @@ async def check_vulnerable_services(
                     print("No vulnerabilities found.")
             for key, data in vulns.items():
                 print(f"\n[!] Vulnerability found: {key} at port {data}")
-                exploit_dict = await exploitdb_search(key, config)
+                exploit_dict = await exploitdb_search(key)
                 return exploit_dict
     else:
         return None
 
-    def exploitdb_search(name, config: dict) -> dict:
-        exploit_dict = {}
-        print("Starting ExploitDb lookup...")
 
-        if len(name) != 0:
-            try:
-                query = str(name) + " " + "site:https://www.exploit-db.com"
-                for data in search(query, tld="com", num=20, start=0, stop=25, pause=2):
-                    if "https://www.exploit-db.com/exploits" in data:
-                        t = ContentCallback()
-                        curlObj = pycurl.Curl()
-                        curlObj.setopt(curlObj.URL, "{}".format(data))
-                        curlObj.setopt(curlObj.WRITEFUNCTION, t.content_callback)
-                        curlObj.perform()
-                        curlObj.close()
-                        print(("Url:" + " " + data))
-                        soup = BeautifulSoup(t.contents, "lxml")
-                        desc = soup.find("meta", property="og:title")
-                        keywords = soup.find("meta", attrs={"name": "keywords"})
-                        print(keywords["content"])
-                        tmp = keywords["content"].split(",")
-                        try:
-                            cve = tmp[2]
-                        except IndexError:
-                            cve = None
+async def exploitdb_search(name) -> dict:
+    exploit_dict = {}
+    print("Starting ExploitDb lookup...")
 
-                        print(
-                            (
-                                "Title:" + " " + desc["content"]
-                                if desc
-                                else "Cannot find the description for the exploit"
-                            )
-                        )
-                        author = soup.find("meta", property="article:author")
-                        print(("CVE:" + " " + cve if cve else "No cve id found"))
-                        print(
-                            (
-                                "Author:" + " " + author["content"]
-                                if author
-                                else "No author name found"
-                            )
-                        )
-                        publish = soup.find("meta", property="article:published_time")
-                        print(
-                            (
-                                "Publish Date:" + " " + publish["content"]
-                                if publish
-                                else "Cannot find the published date"
-                            )
-                        )
-                        print()
-                        # create dict
-                        exploit_dict["service"] = name
-                        exploit_dict["cve"] = cve
-                        exploit_dict["url"] = data
-                        exploit_dict["author"] = author
-                        exploit_dict["date"] = publish["content"]
-                        exploit_dict["desc"] = desc["content"]
-                        return exploit_dict
+    if len(name) != 0:
+        try:
+            query = str(name) + " " + "site:https://www.exploit-db.com"
+            for data in search(query, tld="com", num=20, start=0, stop=25, pause=2):
+                if "https://www.exploit-db.com/exploits" in data:
+                    t = ContentCallback()
+                    curlObj = pycurl.Curl()
+                    curlObj.setopt(curlObj.URL, "{}".format(data))
+                    curlObj.setopt(curlObj.WRITEFUNCTION, t.content_callback)
+                    curlObj.perform()
+                    curlObj.close()
+                    print(("Url:" + " " + data))
+                    soup = BeautifulSoup(t.contents, "lxml")
+                    desc = soup.find("meta", property="og:title")
+                    keywords = soup.find("meta", attrs={"name": "keywords"})
+                    print(keywords["content"])
+                    tmp = keywords["content"].split(",")
+                    try:
+                        cve = tmp[2]
+                    except IndexError:
+                        cve = None
 
-            except Exception as e:
-                print("Connection Error!")
-                print(e)
+                    print(
+                        (
+                            "Title:" + " " + desc["content"]
+                            if desc
+                            else "Cannot find the description for the exploit"
+                        )
+                    )
+                    author = soup.find("meta", property="article:author")
+                    print(("CVE:" + " " + cve if cve else "No cve id found"))
+                    print(
+                        (
+                            "Author:" + " " + author["content"]
+                            if author
+                            else "No author name found"
+                        )
+                    )
+                    publish = soup.find("meta", property="article:published_time")
+                    print(
+                        (
+                            "Publish Date:" + " " + publish["content"]
+                            if publish
+                            else "Cannot find the published date"
+                        )
+                    )
+                    print()
+                    # create dict
+                    exploit_dict["service"] = name
+                    exploit_dict["cve"] = cve
+                    exploit_dict["url"] = data
+                    exploit_dict["author"] = author
+                    exploit_dict["date"] = publish["content"]
+                    exploit_dict["desc"] = desc["content"]
+                    return exploit_dict
+
+        except Exception as e:
+            print("Connection Error!")
+            print(e)
