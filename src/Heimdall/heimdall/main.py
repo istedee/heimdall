@@ -23,21 +23,10 @@ class MainClass:
         config = set.get_config()
         return config
 
-    async def check_file_changes(self, config):
-        print("checking file changes")
-        while True:
-            if configparser.ConfigManager().check_configuration(config) == False:
-                self.config = self.set_configuration()
-                config = self.config
-                print("New configuration set!")
-            await asyncio.sleep(2)
-
     async def main(self):
         """Main loop for Heimdall"""
         timestamp = self.timestamp()
-        file_change_task = asyncio.create_task(self.check_file_changes(self.config))
-        portscan = asyncio.create_task(base.scanner(self.config["CONFIG"], timestamp))
-        await file_change_task
+        portscan = asyncio.create_task(base.scanner(self.config, timestamp))
         await portscan
 
 
