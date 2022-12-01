@@ -1,3 +1,4 @@
+import os
 import nmap, json, pycurl, asyncio, functools
 from .utils import return_path, ContentCallback, parse_results
 from . import configparser
@@ -9,12 +10,18 @@ async def scanner(config: dict, timestamp: str) -> None:
     while True:
         # Check config changes
         if configparser.ConfigManager().check_configuration(config) == False:
-            config = configparser.ConfigManager().set_configuration(config)
+            print("Configuration has changed.\n")
+            print("Applying the changes...")
+            configuration = configparser.ConfigManager()
+            configuration.set_config()
+            config = configuration.get_config()
+            print("Changes made succesfully.\n")
         """Scanner base logic"""
         if config["CONFIG"]["port_scan"] == False:
             print("Portscan not enabled")
             await asyncio.sleep(10)
             return
+        sleeptime = config["CONFIG"]["sleeptime"]
         print("Starting port scan...")
         loop = asyncio.get_event_loop()
         results = {}
@@ -37,7 +44,12 @@ async def scanner(config: dict, timestamp: str) -> None:
                 json.dump(results, outfile, indent=4)
         except FileNotFoundError:
             print("Results folder not found!")
-            print("Cannot save results to a file")
+            print("Creating results directory for storing findings")
+            os.mkdir(return_path("../") / "results")
+            print("Directory created succesfully!\n")
+            print("Storing the findings to the results folder")
+            with open(confPath, "w") as outfile:
+                json.dump(results, outfile, indent=4)
         print("Port scan done!\n")
 
         await check_vulnerable_services(config, results, timestamp)
@@ -48,7 +60,8 @@ async def scanner(config: dict, timestamp: str) -> None:
         # insert function here
         #############################################
 
-        await asyncio.sleep(120)
+        print(f"Waiting {sleeptime} seconds before next scan...\n")
+        await asyncio.sleep(sleeptime)
 
 
 async def check_vulnerable_services(
@@ -62,7 +75,6 @@ async def check_vulnerable_services(
     port = 0
     count = 0
     data = scanresults
-    #    print(scanresults)
     if scanresults:  # skip check if results.json is empty
         print("found results")
         for host, ports in scanresults.items():
@@ -91,7 +103,7 @@ async def check_vulnerable_services(
                 if count == 0:
                     print("No vulnerabilities found.")
             for key, data in vulns.items():
-                print(f"\n[!] Vulnerability found: {key} at port {data}")
+                print(f"\n[!] Vulnerability found: {key} at port {data}\n")
                 exploit_dict = await exploitdb_search(key)
                 return exploit_dict
     else:
