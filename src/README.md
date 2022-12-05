@@ -10,6 +10,7 @@ Install dependencies:
 
 ```shell
 $ sudo apt install libcurl4-gnutls-dev librtmp-dev
+$ sudo apt install nmap
 ```
 
 Create virtual env:
