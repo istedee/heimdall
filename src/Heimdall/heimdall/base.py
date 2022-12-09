@@ -5,6 +5,17 @@ from .utils import return_path, ContentCallback, parse_results
 from . import configparser
 from bs4 import BeautifulSoup
 from googlesearch import search
+from elasticsearch import Elasticsearch, helpers
+
+def index(data):
+    """Index data into elasticsearch"""
+    client = Elasticsearch("0.0.0.0")
+    index = "heimdall-data-index"
+    index_data = json.load(data)
+    response = helpers.bulk(client, index_data, index, doc_type="_doc",)
+    print("lets index data to elastic")
+
+
 
 
 def get_timestamp() -> str:
@@ -79,14 +90,14 @@ async def scanner(config: dict) -> None:
             #     print(entry)
             print()
             #############################################
-            # Here comes the ELK handle for the parsed with
-            results_json = json.dumps(results)
-            # insert function here
+            # Here comes the ELK handle for the parsed
+            print("Parsed JSON: ", json.dumps(results))
+            index(json.dumps(results))
+            print("indexing done")
             #############################################
 
         print(f"Waiting {sleeptime} seconds before next scan...\n")
         await asyncio.sleep(sleeptime)
-
 
 async def check_vulnerable_services(config: dict, scanresults: list) -> dict:
     if config["CONFIG"]["vuln_discovery"] == False:
