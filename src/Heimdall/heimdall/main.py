@@ -15,7 +15,7 @@ class MainClass:
 
     def timestamp(self) -> str:
         """Returns timestamp for Scanner"""
-        return datetime.datetime.now().isoformat(sep=" ", timespec="seconds")
+        return datetime.datetime.now().isoformat(sep="T", timespec="seconds")
 
     def set_configuration(self):
         set = configparser.ConfigManager()
