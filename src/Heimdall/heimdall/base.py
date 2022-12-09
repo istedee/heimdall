@@ -72,7 +72,7 @@ async def scanner(config: dict, timestamp: str) -> None:
             print()
             #############################################
             # Here comes the ELK handle for the parsed
-            # print(parsedELK)
+            print("Parsed JSON: ", json.dumps(results))
             # insert function here
             #############################################
 
@@ -143,15 +143,7 @@ async def exploitdb_search(name: str) -> dict:
                             else "Cannot find the description for the exploit"
                         )
                     )
-                    author = soup.find("meta", property="article:author")
                     print(("CVE:" + " " + cve if cve else "No cve id found"))
-                    print(
-                        (
-                            "Author:" + " " + author["content"]
-                            if author
-                            else "No author name found"
-                        )
-                    )
                     publish = soup.find("meta", property="article:published_time")
                     print(
                         (
@@ -162,12 +154,11 @@ async def exploitdb_search(name: str) -> dict:
                     )
                     print()
                     # create dict
-                    exploit_dict["service"] = name
-                    exploit_dict["cve"] = cve
-                    exploit_dict["url"] = data
-                    exploit_dict["author"] = author
-                    exploit_dict["date"] = publish["content"]
-                    exploit_dict["desc"] = desc["content"]
+                    exploit_dict["service"] = str(name)
+                    exploit_dict["cve"] = str(cve)
+                    exploit_dict["url"] = str(data)
+                    exploit_dict["date"] = str(publish["content"])
+                    exploit_dict["desc"] = str(desc["content"])
                     return exploit_dict
         except Exception as e:
             print("Connection Error!")
