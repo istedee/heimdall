@@ -1,3 +1,4 @@
+import datetime
 import os
 import nmap, json, pycurl, asyncio, functools
 from .utils import return_path, ContentCallback, parse_results
@@ -6,7 +7,12 @@ from bs4 import BeautifulSoup
 from googlesearch import search
 
 
-async def scanner(config: dict, timestamp: str) -> None:
+def get_timestamp() -> str:
+    """Returns timestamp for Scanner"""
+    return datetime.datetime.now().isoformat(sep="T", timespec="seconds")
+
+
+async def scanner(config: dict) -> None:
     while True:
         # Check config changes
         if configparser.ConfigManager().check_configuration(config) == False:
@@ -22,7 +28,9 @@ async def scanner(config: dict, timestamp: str) -> None:
             await asyncio.sleep(10)
             return
         sleeptime = config["CONFIG"]["sleeptime"]
+        timestamp = get_timestamp()
         print("Starting port scan...")
+
         loop = asyncio.get_event_loop()
         results = {}
         nm = nmap.PortScanner()
@@ -67,12 +75,12 @@ async def scanner(config: dict, timestamp: str) -> None:
             print("Port scan done!\n")
 
             vulns = await check_vulnerable_services(config, results)
-            for entry in vulns:
-                print(entry)
+            # for entry in vulns:
+            #     print(entry)
             print()
             #############################################
-            # Here comes the ELK handle for the parsed
-            print("Parsed JSON: ", json.dumps(results))
+            # Here comes the ELK handle for the parsed with
+            results_json = json.dumps(results)
             # insert function here
             #############################################
 

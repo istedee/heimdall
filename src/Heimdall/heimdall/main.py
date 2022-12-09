@@ -1,4 +1,4 @@
-import asyncio, json, datetime
+import asyncio, json
 
 from . import base
 
@@ -13,10 +13,6 @@ class MainClass:
         self.config = self.set_configuration()
         print(json.dumps(self.config, indent=4))
 
-    def timestamp(self) -> str:
-        """Returns timestamp for Scanner"""
-        return datetime.datetime.now().isoformat(sep="T", timespec="seconds")
-
     def set_configuration(self):
         set = configparser.ConfigManager()
         set.set_config()
@@ -25,8 +21,7 @@ class MainClass:
 
     async def main(self):
         """Main loop for Heimdall"""
-        timestamp = self.timestamp()
-        portscan = asyncio.create_task(base.scanner(self.config, timestamp))
+        portscan = asyncio.create_task(base.scanner(self.config))
         await portscan
 
 
