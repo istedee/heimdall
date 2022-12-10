@@ -3,6 +3,7 @@
 CONFIG:
   # Defines ip address space used, default is 192.168.0.0
   ip_space: "192.168.1.0"
+  elastic_address: "0.0.0.0"
   # Subnet mask for the used ip address space, default 24
   subnet: "28"
   vuln_discovery: True

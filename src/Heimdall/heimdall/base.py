@@ -7,20 +7,20 @@ from bs4 import BeautifulSoup
 from googlesearch import search
 from elasticsearch import Elasticsearch, helpers
 
-def index(data):
+def index(data, address):
     """Index data into elasticsearch"""
-    client = Elasticsearch("0.0.0.0")
-    index = "heimdall-data-index"
-    index_data = json.load(data)
-    response = helpers.bulk(client, index_data, index, doc_type="_doc",)
-    print("lets index data to elastic")
+    client = Elasticsearch(address, max_retries=3)
+    for dictionary in data:
+    # index the dictionary with Elasticsearch
+        client.index(index="heimdall-data-index", doc_type="_doc", body=dictionary)
+        print("indexed document")
 
 
 
 
 def get_timestamp() -> str:
     """Returns timestamp for Scanner"""
-    return datetime.datetime.now().isoformat(sep="T", timespec="seconds")
+    return datetime.datetime.utcnow().isoformat(sep="T", timespec="seconds")
 
 
 async def scanner(config: dict) -> None:
@@ -89,12 +89,9 @@ async def scanner(config: dict) -> None:
             # for entry in vulns:
             #     print(entry)
             print()
-            #############################################
-            # Here comes the ELK handle for the parsed
             print("Parsed JSON: ", json.dumps(results))
-            index(json.dumps(results))
+            index(results, config["CONFIG"]["elastic_address"])
             print("indexing done")
-            #############################################
 
         print(f"Waiting {sleeptime} seconds before next scan...\n")
         await asyncio.sleep(sleeptime)
@@ -118,11 +115,11 @@ async def check_vulnerable_services(config: dict, scanresults: list) -> dict:
                         if vuln:
                             entry["CVE"] = vuln
                         else:
-                            entry["CVE"] = ""
+                            entry["CVE"] = {}
                     else:
-                        entry["CVE"] = ""
+                        entry["CVE"] = {}
                 else:
-                    entry["CVE"] = ""
+                    entry["CVE"] = {}
             except KeyError:
                 pass
     return scanresults
