@@ -43,7 +43,7 @@ curl -XPUT "http://localhost:9200/heimdall-data-index" -H 'Content-Type: applica
 }' &>/dev/null 
 
 curl -X POST "localhost:5601/api/saved_objects/_import" -H "kbn-xsrf:true" --form file=@demo.ndjson &>/dev/null
-curl -X DELETE "localhost:5601/api/index_patterns/index_pattern/heimdall-data-*" -H 'kbn-xsrf: true' &>/dev/null
+curl -X DELETE "localhost:5601/api/index_patterns/index_pattern/b8895060-774c-11ed-b603-dbeb1eccb53a" -H 'kbn-xsrf: true' &>/dev/null
 curl -X POST "localhost:5601/api/index_patterns/index_pattern" -H 'kbn-xsrf: true' -H 'Content-Type: application/json' -d'
 {
   "index_pattern": {
