@@ -7,15 +7,14 @@ from bs4 import BeautifulSoup
 from googlesearch import search
 from elasticsearch import Elasticsearch, helpers
 
+
 def index(data, address):
     """Index data into elasticsearch"""
     client = Elasticsearch(address, max_retries=3)
     for dictionary in data:
-    # index the dictionary with Elasticsearch
+        # index the dictionary with Elasticsearch
         client.index(index="heimdall-data-index", doc_type="_doc", body=dictionary)
         print("indexed document")
-
-
 
 
 def get_timestamp() -> str:
@@ -47,9 +46,16 @@ async def scanner(config: dict) -> None:
         nm = nmap.PortScanner()
         scanRange = config["CONFIG"]["ip_space"] + "/" + config["CONFIG"]["subnet"]
 
+        start = config["CONFIG"]["ports"]["start"]
+        end = config["CONFIG"]["ports"]["end"]
+
+        ports_to_scan = str(start) + "-" + str(end)
+
+        argumentstring = f"-A -script=banner -p {ports_to_scan}"
+
         await loop.run_in_executor(
             None,
-            functools.partial(nm.scan, hosts=scanRange, arguments="-A -script=banner "),
+            functools.partial(nm.scan, hosts=scanRange, arguments=argumentstring),
         )
         for host in nm.all_hosts():
             if "tcp" in nm[host].keys():
@@ -95,6 +101,7 @@ async def scanner(config: dict) -> None:
 
         print(f"Waiting {sleeptime} seconds before next scan...\n")
         await asyncio.sleep(sleeptime)
+
 
 async def check_vulnerable_services(config: dict, scanresults: list) -> dict:
     if config["CONFIG"]["vuln_discovery"] == False:
