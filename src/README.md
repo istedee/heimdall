@@ -9,22 +9,25 @@ Run these commands from the src directory.
 Install dependencies:
 
 DO THIS BEFORE ANYTHING:
+
 ```
 You need to install Docker and Docker compose. Depending on your system, install docker engine if you can. If you cant install engine you should install Docker desktop.
 ```
+
 This link for Docker: https://docs.docker.com/engine/install/
+
 ```
-After installing you should check this link for group creations if you want 
+After installing you should check this link for group creations if you want
 to run rootless.
 ```
+
 Post-installation instructions: https://docs.docker.com/engine/install/linux-postinstall/
+
 ```
 You should also install Docker compose. If you installed Docker Desktop you should have compose too.
 ```
+
 Install Docker compose-plugin https://docs.docker.com/compose/install/
-
-
-
 
 ```shell
 $ sudo apt install libcurl4-gnutls-dev librtmp-dev
@@ -76,34 +79,32 @@ $ cd src/elk/
 Run startup-script in the folder. Give priviledges if needed
 
 Give priviledges
+
 ```shell
 $ chmod +x startup.sh
 ```
 
 Run script
+
 ```shell
 $ ./startup.sh
 ```
+
 This script may take more time if you don't have elastic- and kibana-images from Docker. After pulling the images startup time will reduce.
 
 If you want to stop elk-component you can then run shutdown command for compose. You need to be in the elk-directory.
+
 ```shell
 $ (sudo) docker compose down
 ```
+
 When you have started elk you can then start the Heimdall service.
 
 #### Heimdall
 
-Use the following command from Heimdall folder.
+Start Heimdall with the 'start_heimdall.sh' script
 
 ```shell
-$ python3 -m heimdall.main
+chmod +x start_heimdall.sh
+./start_heimdall.sh
 ```
-
-To run from e.g src folder level, use command prefix:
-
-```shell
-$ python3 -m Heimdall.heimdall.main
-```
-
-This will set the package path correctly
