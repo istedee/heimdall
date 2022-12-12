@@ -51,7 +51,7 @@ async def scanner(config: dict) -> None:
 
         ports_to_scan = str(start) + "-" + str(end)
 
-        argumentstring = f"-A -script=banner -p {ports_to_scan}"
+        argumentstring = f"-A -script=banner -p {ports_to_scan} --open"
 
         await loop.run_in_executor(
             None,
