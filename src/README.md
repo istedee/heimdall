@@ -10,7 +10,7 @@ Install dependencies:
 
 DO THIS BEFORE ANYTHING:
 ```
-You need to install Docker and Docker compose. Depending on your system, install docker engine if you can. If you cant install engine.
+You need to install Docker and Docker compose. Depending on your system, install docker engine if you can. If you cant install engine you should install Docker desktop.
 ```
 This link for Docker: https://docs.docker.com/engine/install/
 ```
