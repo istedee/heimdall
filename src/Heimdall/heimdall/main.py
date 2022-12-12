@@ -4,6 +4,10 @@ from . import base
 
 from . import configparser
 
+from Heimdall.heimdall.logger_config import Logger
+
+logger = Logger(__name__)
+
 
 class MainClass:
     """Sets stage ready for Heimdall"""
@@ -11,7 +15,7 @@ class MainClass:
     def __init__(self) -> None:
         """Inits the class ready for looping"""
         self.config = self.set_configuration()
-        print(json.dumps(self.config, indent=4))
+        logger.info(json.dumps(self.config, indent=4))
 
     def set_configuration(self):
         set = configparser.ConfigManager()
@@ -29,4 +33,4 @@ if __name__ == "__main__":
     try:
         asyncio.run(MainClass().main())
     except KeyboardInterrupt:
-        print("\nExiting scanner...\nGoodbye!\n")
+        logger.info("Exiting scanner... Goodbye!")

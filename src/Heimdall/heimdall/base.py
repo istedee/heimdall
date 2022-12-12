@@ -5,16 +5,22 @@ from .utils import return_path, ContentCallback, parse_results
 from . import configparser
 from bs4 import BeautifulSoup
 from googlesearch import search
-from elasticsearch import Elasticsearch, helpers
+from elasticsearch import Elasticsearch
+import warnings
+from Heimdall.heimdall.logger_config import Logger
+
+
+logger = Logger(__name__)
 
 
 def index(data, address):
     """Index data into elasticsearch"""
+    warnings.filterwarnings("ignore", module="elasticsearch")
     client = Elasticsearch(address, max_retries=3)
     for dictionary in data:
         # index the dictionary with Elasticsearch
         client.index(index="heimdall-data-index", doc_type="_doc", body=dictionary)
-        print("indexed document")
+    logger.info("Indexed %s documents.", len(data))
 
 
 def get_timestamp() -> str:
@@ -26,20 +32,19 @@ async def scanner(config: dict) -> None:
     while True:
         # Check config changes
         if configparser.ConfigManager().check_configuration(config) == False:
-            print("Configuration has changed.\n")
-            print("Applying the changes...")
+            logger.info("Configuration has changed. Applying the changes.")
             configuration = configparser.ConfigManager()
             configuration.set_config()
             config = configuration.get_config()
-            print("Changes made succesfully.\n")
+            logger.info("Changes made succesfully.")
         """Scanner base logic"""
         if config["CONFIG"]["port_scan"] == False:
-            print("Portscan not enabled")
+            logger.info("Portscan not enabled")
             await asyncio.sleep(10)
             return
         sleeptime = config["CONFIG"]["sleeptime"]
         timestamp = get_timestamp()
-        print("Starting port scan...")
+        logger.info("Starting port scan.")
 
         loop = asyncio.get_event_loop()
         results = {}
@@ -74,40 +79,40 @@ async def scanner(config: dict) -> None:
             with open(confPath, "r") as outfile:
                 oldres = json.load(outfile)
                 if oldres == results:
-                    print("The scan results have not changed. Skipping rest of cycle")
+                    logger.info(
+                        "The scan results have not changed. Skipping rest of cycle"
+                    )
                 else:
                     with open(confPath, "w") as outfile:
                         json.dump(results, outfile, indent=4)
                         changed = True
         except FileNotFoundError:
-            print("Results folder not found!")
-            print("Creating results directory for storing findings")
+            logger.info("Results folder not found!")
+            logger.info("Creating results directory for storing findings")
             os.mkdir(return_path("../") / "results")
-            print("Directory created succesfully!\n")
-            print("Storing the findings to the results folder")
+            logger.info("Directory created succesfully!\n")
+            logger.info("Storing the findings to the results folder")
             with open(confPath, "w") as outfile:
                 json.dump(results, outfile, indent=4)
                 changed = True
         if changed == True:
-            print("Port scan done!\n")
+            logger.info("Port scan done!")
 
             vulns = await check_vulnerable_services(config, results)
-            # for entry in vulns:
-            #     print(entry)
-            print()
-            print("Parsed JSON: ", json.dumps(results))
-            index(results, config["CONFIG"]["elastic_address"])
-            print("indexing done")
 
-        print(f"Waiting {sleeptime} seconds before next scan...\n")
+            logger.info("Parsed JSON: %s", json.dumps(results))
+            index(results, config["CONFIG"]["elastic_address"])
+            logger.info("indexing done")
+
+        logger.info(f"Waiting {sleeptime} seconds before next scan.")
         await asyncio.sleep(sleeptime)
 
 
 async def check_vulnerable_services(config: dict, scanresults: list) -> dict:
     if config["CONFIG"]["vuln_discovery"] == False:
-        print("Vulnerability discovery is not enabled")
+        logger.info("Vulnerability discovery is not enabled")
     else:
-        print("Starting vulnerability scan\n")
+        logger.info("Starting vulnerability scan")
     checked_banners = {}
     if scanresults:  # skip check if results.json is empty
         for entry in scanresults:
@@ -134,7 +139,7 @@ async def check_vulnerable_services(config: dict, scanresults: list) -> dict:
 
 async def exploitdb_search(name: str) -> dict:
     exploit_dict = {}
-    print("Starting ExploitDb lookup...")
+    logger.info("Starting ExploitDb lookup...")
 
     if len(name) != 0:
         try:
@@ -175,7 +180,6 @@ async def exploitdb_search(name: str) -> dict:
                             else "Cannot find the published date"
                         )
                     )
-                    print()
                     # create dict
                     exploit_dict["service"] = str(name)
                     exploit_dict["cve"] = str(cve)
@@ -184,6 +188,6 @@ async def exploitdb_search(name: str) -> dict:
                     exploit_dict["desc"] = str(desc["content"])
                     return exploit_dict
         except Exception as e:
-            print("Connection Error!")
-            print(e)
+            logger.error("Connection Error!")
+            logger.error(e)
     return exploit_dict
