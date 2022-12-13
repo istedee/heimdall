@@ -3,8 +3,16 @@ from PyQt5.QtWidgets import  QWidget, QGroupBox, QLineEdit,  QLabel, QCheckBox, 
 from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtCore import QRect, QMetaObject, QCoreApplication, Qt, QSize, QThread
 from time import sleep
+from os import path
+from pathlib import Path
+from re import compile
+from subprocess import call as process_call
 
-CONFIG_PATH = "../config/config.yml"
+CONFIG_PATH = Path(path.dirname(__file__)).parent.joinpath("config", "config.yml")
+PATH_TO_SRC = Path(path.dirname(__file__)).parent.parent.absolute()
+PATH_TO_START_SCRIPT = PATH_TO_SRC.joinpath("start_heimdall.sh")
+STYLEPATH = Path(path.dirname(__file__)).absolute().joinpath("style.qss")
+DASHBOARD_URL = "http://localhost:5601/app/dashboards#"
 
 class Ui_MainWindow(QMainWindow):
     def __init__(self):
@@ -52,14 +60,14 @@ class Ui_MainWindow(QMainWindow):
 
         self.setGroupBox = QGroupBox(self.centralwidget)
         self.setGroupBox.setObjectName(u"setGroupBox")
-        self.setGroupBox.setGeometry(QRect(20, 20, 341, 351))
+        self.setGroupBox.setGeometry(QRect(20, 20, 340, 360))
 
         self.setGroupBox.setFont(font1)
         self.setGroupBox.setAlignment(Qt.AlignCenter)
 
         self.setIpspaceLine = QLineEdit(self.setGroupBox)
         self.setIpspaceLine.setObjectName(u"setIpspaceLine")
-        self.setIpspaceLine.setGeometry(QRect(40, 50, 261, 21))
+        self.setIpspaceLine.setGeometry(QRect(40, 50, 260, 20))
         self.setIpspaceLine.setText(u"")
         self.setIpspaceLine.setMaxLength(15)
         self.setIpspaceLine.setFont(font3)
@@ -67,26 +75,39 @@ class Ui_MainWindow(QMainWindow):
 
         self.setIpspaceLabel = QLabel(self.setGroupBox)
         self.setIpspaceLabel.setObjectName(u"setIpspaceLabel")
-        self.setIpspaceLabel.setGeometry(QRect(40, 30, 261, 20))
+        self.setIpspaceLabel.setGeometry(QRect(40, 30, 260, 20))
         self.setIpspaceLabel.setFont(font2)
         self.setIpspaceLabel.setAlignment(Qt.AlignCenter)
 
         self.setSubnetLine = QLineEdit(self.setGroupBox)
         self.setSubnetLine.setObjectName(u"setSubnetLine")
-        self.setSubnetLine.setGeometry(QRect(140, 100, 61, 20))
+        self.setSubnetLine.setGeometry(QRect(70, 100, 61, 20))
         self.setSubnetLine.setMaxLength(3)
         self.setSubnetLine.setFont(font3)
         self.setSubnetLine.setAlignment(Qt.AlignCenter)
         
         self.setSubnetLabel = QLabel(self.setGroupBox)
         self.setSubnetLabel.setObjectName(u"setSubnetLabel")
-        self.setSubnetLabel.setGeometry(QRect(130, 80, 81, 20))
+        self.setSubnetLabel.setGeometry(QRect(60, 80, 80, 20))
         self.setSubnetLabel.setFont(font2)
         self.setSubnetLabel.setAlignment(Qt.AlignCenter)
 
+        self.setSleeptimeLine = QLineEdit(self.setGroupBox)
+        self.setSleeptimeLine.setObjectName(u"setSleeptimeLine")
+        self.setSleeptimeLine.setGeometry(QRect(210, 100, 60, 20))
+        self.setSleeptimeLine.setFont(font3)
+        self.setSleeptimeLine.setAlignment(Qt.AlignCenter)
+        self.setSleeptimeLine.setMaxLength(7)
+
+        self.setSleeptimeLabel = QLabel(self.setGroupBox)
+        self.setSleeptimeLabel.setObjectName(u"setSleeptimeLabel")
+        self.setSleeptimeLabel.setGeometry(QRect(196, 80, 90, 20))
+        self.setSleeptimeLabel.setFont(font2)
+        self.setSleeptimeLabel.setAlignment(Qt.AlignCenter)
+
         self.setVulndiscBox = QCheckBox(self.setGroupBox)
         self.setVulndiscBox.setObjectName(u"setVulndiscBox")
-        self.setVulndiscBox.setGeometry(QRect(80, 250, 20, 41))
+        self.setVulndiscBox.setGeometry(QRect(80, 250, 20, 40))
         self.setVulndiscBox.setLayoutDirection(Qt.RightToLeft)
 
         self.setPortscanBox = QCheckBox(self.setGroupBox)
@@ -171,7 +192,7 @@ class Ui_MainWindow(QMainWindow):
         self.showSubnetLine = QLineEdit(self.showGroupBox)
         self.showSubnetLine.setObjectName(u"showSubnetLine")
         self.showSubnetLine.setEnabled(False)
-        self.showSubnetLine.setGeometry(QRect(140, 100, 61, 20))
+        self.showSubnetLine.setGeometry(QRect(70, 100, 61, 20))
         self.showSubnetLine.setMaxLength(3)
         self.showSubnetLine.setFont(font3)
         self.showSubnetLine.setAlignment(Qt.AlignCenter)
@@ -179,9 +200,24 @@ class Ui_MainWindow(QMainWindow):
 
         self.showSubnetLabel = QLabel(self.showGroupBox)
         self.showSubnetLabel.setObjectName(u"showSubnetLabel")
-        self.showSubnetLabel.setGeometry(QRect(130, 80, 81, 20))
+        self.showSubnetLabel.setGeometry(QRect(60, 80, 81, 20))
         self.showSubnetLabel.setFont(font2)
         self.showSubnetLabel.setAlignment(Qt.AlignCenter)
+
+        self.showSleeptimeLine = QLineEdit(self.showGroupBox)
+        self.showSleeptimeLine.setObjectName(u"showSleeptimeLine")
+        self.showSleeptimeLine.setGeometry(QRect(210, 100, 60, 20))
+        self.showSleeptimeLine.setEnabled(False)
+        self.showSleeptimeLine.setFont(font3)
+        self.showSleeptimeLine.setAlignment(Qt.AlignCenter)
+        self.showSleeptimeLine.setMaxLength(7)
+        self.showSleeptimeLine.setReadOnly(True)
+
+        self.showSleeptimeLabel = QLabel(self.showGroupBox)
+        self.showSleeptimeLabel.setObjectName(u"showSleeptimeLabel")
+        self.showSleeptimeLabel.setGeometry(QRect(196, 80, 90, 20))
+        self.showSleeptimeLabel.setFont(font2)
+        self.showSleeptimeLabel.setAlignment(Qt.AlignCenter)
 
         self.showVulndiscBox = QCheckBox(self.showGroupBox)
         self.showVulndiscBox.setObjectName(u"showVulndiscBox")
@@ -242,6 +278,22 @@ class Ui_MainWindow(QMainWindow):
         self.showEndPortscanLabel.setObjectName(u"showEndPortscanLabel")
         self.showEndPortscanLabel.setGeometry(QRect(170, 30, 41, 16))
         self.showEndPortscanLabel.setAlignment(Qt.AlignCenter)
+
+        self.dashboardButton = QPushButton(MainWindow)
+        self.dashboardButton.setObjectName(u"dashboardButton")
+        self.dashboardButton.setGeometry(QRect(444, 332, 100, 30))
+        self.dashboardButton.setFont(font3)
+
+        self.scanButton = QPushButton(MainWindow)
+        self.scanButton.setObjectName(u"scanButton")
+        self.scanButton.setGeometry(QRect(624, 332, 100, 30))
+        self.scanButton.setFont(font3)
+
+        self.scanLabel = QLabel(MainWindow)
+        self.scanLabel.setObjectName(u"scanLabel")
+        self.scanLabel.setGeometry(QRect(608, 358, 140, 30))
+        self.scanLabel.setFont(font2)
+
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
@@ -257,6 +309,7 @@ class Ui_MainWindow(QMainWindow):
         self.setIpspaceLabel.setText(QCoreApplication.translate("MainWindow", u"IP Space", None))
         self.setSubnetLine.setText("")
         self.setSubnetLabel.setText(QCoreApplication.translate("MainWindow", u"Subnet", None))
+        self.setSleeptimeLabel.setText(QCoreApplication.translate("MainWindow", u"Sleep time (s)", None))
         self.setVulndiscBox.setText("")
         self.setPortscanBox.setText("")
         self.setVulndiscLabel.setText(QCoreApplication.translate("MainWindow", u"Vulnerability discovery", None))
@@ -271,6 +324,7 @@ class Ui_MainWindow(QMainWindow):
         self.showIpspaceLabel.setText(QCoreApplication.translate("MainWindow", u"IP Space", None))
         self.showSubnetLine.setText("")
         self.showSubnetLabel.setText(QCoreApplication.translate("MainWindow", u"Subnet", None))
+        self.showSleeptimeLabel.setText(QCoreApplication.translate("MainWindow", u"Sleep time (s)", None))
         self.showVulndiscBox.setText("")
         self.showPortscanBox.setText("")
         self.showVulndiscLabel.setText(QCoreApplication.translate("MainWindow", u"Vulnerability discovery", None))
@@ -278,7 +332,11 @@ class Ui_MainWindow(QMainWindow):
         self.showPortscanGroupBox.setTitle(QCoreApplication.translate("MainWindow", u"Ports to scan", None))
         self.showStartPortscanLabel.setText(QCoreApplication.translate("MainWindow", u"Start", None))
         self.showEndPortscanLabel.setText(QCoreApplication.translate("MainWindow", u"End", None))
-    
+
+        self.dashboardButton.setText(QCoreApplication.translate("MainWindow", u"Dashboard", None))
+        self.scanButton.setText(QCoreApplication.translate("MainWindow", "Start scan", None))
+        self.scanLabel.setText(QCoreApplication.translate("MainWindow", u"(Works only on Linux)", None))
+
     def updateCurrentConfig(self, config: dict):
         """Set the values into the 'current' box of the window
 
@@ -288,12 +346,14 @@ class Ui_MainWindow(QMainWindow):
         conf = config["CONFIG"]
         ip_space = str(conf["ip_space"])
         subnet = str(conf["subnet"])
+        sleeptime = str(conf["sleeptime"])
         vuln_disc = bool(conf["vuln_discovery"])
         port_scan = bool(conf["port_scan"])
         ports = (str(conf["ports"]["start"]), str(conf["ports"]["end"]))
 
         self.showIpspaceLine.setText(ip_space)
         self.showSubnetLine.setText(subnet)
+        self.showSleeptimeLine.setText(sleeptime)
         self.showVulndiscBox.setChecked(vuln_disc)
         self.showPortscanBox.setChecked(port_scan)
         self.showStartPortscanLine.setText(ports[0])
@@ -304,19 +364,41 @@ class Ui_MainWindow(QMainWindow):
         """
         conf = self.config["CONFIG"]
 
+        # check ip space input
         ip_space = self.setIpspaceLine.text()
-        if (len(ip_space) == 0) or (ip_space.count(".") != 3):
+        ip_regex_pattern = compile("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
+        if not ip_regex_pattern.match(ip_space):
             ip_space = conf["ip_space"]
 
+        # check subnet input
         try:
-            subnet = str(int(self.setSubnetLine.text()))
+            subnet_int = int(self.setSubnetLine.text())
+            print(subnet_int)
+            if subnet_int >= 0:
+                subnet = str(subnet_int)
+            else:
+                error_message("Subnet cannot be negative!")
+                subnet = conf["subnet"]
         except:
             subnet = conf["subnet"]
-        if len(subnet) == 0:
-            subnet = conf["subnet"]
+        
 
+        # check sleep time input
+        try:
+            sleeptime_int = int(self.setSleeptimeLine.text())
+            if sleeptime_int > 0:
+                sleeptime = str(sleeptime_int)
+            else:
+                error_message("Sleep time cannot be negative or zero!")
+                sleeptime = conf["sleeptime"]
+        except:
+            sleeptime = conf["sleeptime"]
+
+        # get vuln discovery and port scan booleans
         vuln_disc = self.setVulndiscBox.isChecked()
         port_scan = self.setPortscanBox.isChecked()
+        
+        # check portscan values
         try:
             portscan_start = int(self.setStartPortscanLine.text())
         except ValueError:
@@ -328,14 +410,12 @@ class Ui_MainWindow(QMainWindow):
             portscan_end = conf["ports"]["end"]
 
         if (portscan_start > portscan_end) or (portscan_start<0) or (portscan_end<0):
-            msg = QMessageBox()
-            msg.setWindowTitle("Error")
-            msg.setText(f"Invalid port values!\nStart: {portscan_start} End: {portscan_end}")
-            msg.exec_()
+            error_message(f"Invalid port values!\nStart: {portscan_start} End: {portscan_end}")
             return
         
         conf["ip_space"] = ip_space
         conf["subnet"] = subnet
+        conf["sleeptime"] = sleeptime
         conf["vuln_discovery"] = vuln_disc
         conf["port_scan"] = port_scan
         conf["ports"]["start"] = portscan_start
@@ -345,6 +425,19 @@ class Ui_MainWindow(QMainWindow):
 
         update_config_file(CONFIG_PATH, self.config)
         
+class WindowUpdateThread(QThread):
+    def __init__(self, window: Ui_MainWindow):
+        QThread.__init__(self)
+        self.window = window
+    
+    def run(self):
+        """Loop for value update thread
+        """
+        while True:
+            current_config = get_config(CONFIG_PATH)
+            self.window.updateCurrentConfig(current_config)
+            sleep(0.5)
+
 def get_config(path: str):
     """Get config data from yaml file
 
@@ -370,17 +463,21 @@ def update_config_file(path: str, newConf: dict):
     """
     with open(path, "w") as file:
         yaml.dump(newConf, file)
-  
 
-class WindowUpdateThread(QThread):
-    def __init__(self, window: Ui_MainWindow):
-        QThread.__init__(self)
-        self.window = window
-    
-    def run(self):
-        """Loop for value update thread
-        """
-        while True:
-            current_config = get_config(CONFIG_PATH)
-            self.window.updateCurrentConfig(current_config)
-            sleep(1)
+def call_process(list_args: list):
+    """Calls subprocess.call on with the args given.
+    Error handling included
+
+    Args:
+        list_args (list): list of command line arguments to execute
+    """
+    try:
+        process_call(list_args)
+    except:
+        error_message(f"Scan execute failed!\nCheck if your system can open .sh files")
+
+def error_message(message: str):
+    msg = QMessageBox()
+    msg.setWindowTitle("Error")
+    msg.setText(message)
+    msg.exec_()
