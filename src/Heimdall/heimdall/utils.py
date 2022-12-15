@@ -23,7 +23,7 @@ def parse_results(results: dict, timestamp) -> list:
             elkJson["product"] = data["product"]
             elkJson["version"] = data["version"]
             elkJson["extrainfo"] = data["extrainfo"]
-            elkJson["banner"] = data["script"].get("banner", "")
+            elkJson["banner"] = data.get("script", {}).get("banner", "")
             elkList.append(elkJson)
     return elkList
 
