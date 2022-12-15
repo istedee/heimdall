@@ -1,6 +1,10 @@
 import datetime
 import os
-import nmap, json, pycurl, asyncio, functools
+import nmap
+import json
+import pycurl
+import asyncio
+import functools
 from .utils import return_path, ContentCallback, parse_results
 from . import configparser
 from bs4 import BeautifulSoup
@@ -31,14 +35,14 @@ def get_timestamp() -> str:
 async def scanner(config: dict) -> None:
     while True:
         # Check config changes
-        if configparser.ConfigManager().check_configuration(config) == False:
+        if not configparser.ConfigManager().check_configuration(config):
             logger.info("Configuration has changed. Applying the changes.")
             configuration = configparser.ConfigManager()
             configuration.set_config()
             config = configuration.get_config()
             logger.info("Changes made succesfully.")
         """Scanner base logic"""
-        if config["CONFIG"]["port_scan"] == False:
+        if not config["CONFIG"]["port_scan"]:
             logger.info("Portscan not enabled")
             await asyncio.sleep(10)
             return
@@ -95,12 +99,12 @@ async def scanner(config: dict) -> None:
             with open(confPath, "w") as outfile:
                 json.dump(results, outfile, indent=4)
                 changed = True
-        if changed == True:
+        if changed:
             logger.info("Port scan done!")
 
             vulns = await check_vulnerable_services(config, results)
 
-            logger.info("Parsed JSON: %s", json.dumps(results))
+            logger.info("Parsed JSON: %s", json.dumps(vulns))
             index(results, config["CONFIG"]["elastic_address"])
             logger.info("indexing done")
 
