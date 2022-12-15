@@ -109,31 +109,26 @@ async def scanner(config: dict) -> None:
 
 
 async def check_vulnerable_services(config: dict, scanresults: list) -> dict:
-    if config["CONFIG"]["vuln_discovery"] == False:
+    if not config["CONFIG"]["vuln_discovery"]:
         logger.info("Vulnerability discovery is not enabled")
-    else:
-        logger.info("Starting vulnerability scan")
+        return scanresults
+
+    logger.info("Starting vulnerability scan")
     checked_banners = {}
-    if scanresults:  # skip check if results.json is empty
-        for entry in scanresults:
-            try:
-                if config["CONFIG"]["vuln_discovery"] == True:
-                    if entry["banner"]:
-                        if entry["banner"] not in checked_banners:
-                            vuln = await exploitdb_search(entry["banner"])
-                            checked_banners[entry["banner"]] = vuln
-                        else:
-                            vuln = checked_banners[entry["banner"]]
-                        if vuln:
-                            entry["CVE"] = vuln
-                        else:
-                            entry["CVE"] = {}
-                    else:
-                        entry["CVE"] = {}
-                else:
-                    entry["CVE"] = {}
-            except KeyError:
-                pass
+
+    for entry in scanresults:
+        try:
+            if not entry["banner"]:
+                entry["CVE"] = {}
+                continue
+            if entry["banner"] not in checked_banners:
+                vuln = await exploitdb_search(entry["banner"])
+                checked_banners[entry["banner"]] = vuln
+            else:
+                vuln = checked_banners[entry["banner"]]
+            entry["CVE"] = vuln or {}
+        except KeyError:
+            pass
     return scanresults
 
 
