@@ -12,6 +12,7 @@ class Logger(logging.Logger):
         self.addHandler(handler)
 
         formatter = logging.Formatter(
-            "[%(asctime)s:%(name)s:%(levelname)s:%(funcName)s]: %(message)s"
+            "[%(asctime)s:%(filename)s:%(levelname)s:%(funcName)s]: %(message)s",
+            datefmt="%d-%b-%y %H:%M:%S",
         )
         handler.setFormatter(formatter)
