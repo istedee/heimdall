@@ -1,0 +1,17 @@
+beautifulsoup4==4.9.3
+certifi==2022.9.24
+chardet==4.0.0
+configparser==5.3.0
+google==3.0.0
+idna==2.10
+lxml==4.9.1
+pycurl==7.45.1
+python-nmap==0.7.1
+PyYAML==6.0
+requests==2.25.1
+soupsieve==2.3.2.post1
+urllib3==1.26.13
+elasticsearch==7.17.7
+PyQt5==5.15.7
+PyQt5-Qt5==5.15.2
+PyQt5-sip==12.11.0
