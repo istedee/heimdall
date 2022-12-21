@@ -1,0 +1,14 @@
+services:
+  web:
+    build:
+      context: Vue/heimfront
+      target: development
+    ports:
+      - 8080:8080
+    volumes:
+      - ./Vue/heimfront:/project
+      - /project/node_modules
+  flask:
+    build: .
+    ports:
+      - "5000:5000"
