@@ -5,7 +5,7 @@ import json
 import pycurl
 import asyncio
 import functools
-from .utils import return_path, ContentCallback, parse_results
+from .utils import return_path, ContentCallback, parse_results, save_metadata
 from . import configparser
 from bs4 import BeautifulSoup
 from googlesearch import search
@@ -105,8 +105,14 @@ async def scanner(config: dict) -> None:
             vulns = await check_vulnerable_services(config, results)
 
             logger.info("Parsed JSON: %s", json.dumps(vulns))
-            index(results, config["CONFIG"]["elastic_address"])
-            logger.info("indexing done")
+            try:
+                save_metadata(vulns, config["CONFIG"], get_timestamp())
+                index(results, config["CONFIG"]["elastic_address"])
+                logger.info("indexing done")
+            except Exception as e:
+                # Fix to exact one later, could not figure out
+                # mikke
+                logger.info("Could not index, Elastic not reachable")
 
         logger.info(f"Waiting {sleeptime} seconds before next scan.")
         await asyncio.sleep(sleeptime)
